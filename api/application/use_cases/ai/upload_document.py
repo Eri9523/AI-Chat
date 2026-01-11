@@ -43,7 +43,7 @@ class UploadDocument:
             metadata=dto.metadata,
         )
 
-        saved_document = self.document_repository.create(document)
+        saved_document = await self.document_repository.create(document)
 
         asyncio.create_task(self._process_document(saved_document))
 
@@ -56,7 +56,7 @@ class UploadDocument:
     
     async def _process_document(self, document:DocumentEntity):
         try:
-            self.document_repository.update(
+            await self.document_repository.update(
                 document.id,
                 {"status": ProcessingStatus.PROCESSING}
             )
@@ -80,7 +80,7 @@ class UploadDocument:
                 metadatas=metadatas
             )
 
-            self.document_repository.update(
+            await self.document_repository.update(
                 document.id,
                 {
                     "status": ProcessingStatus.COMPLETED,
@@ -89,7 +89,7 @@ class UploadDocument:
             )
         except Exception as error:
 
-            self.document_repository.update(
+            await self.document_repository.update(
                 document.id,
                 {
                     "status": ProcessingStatus.ERROR,

@@ -40,7 +40,7 @@ class DocumentEntity:
         self.created_at = created_at
         self.updated_at = updated_at
         self.vector_ids = vector_ids
-        self.metada = metadata
+        self.metadata = metadata
         self.error_message = error_message
     
     @staticmethod
