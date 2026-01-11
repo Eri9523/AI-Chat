@@ -42,6 +42,44 @@ FastAPI-based  for an AI chatbot application with clean architecture, JWT authen
 │   └── http/               # Controllers, routes & middleware
 ```
 
+
+## Testing
+
+### Run the Test Suite
+
+The project includes a comprehensive test suite for all authentication and AI endpoints using pytest and mongomock (in-memory MongoDB for tests).
+
+**To run all tests:**
+
+```bash
+cd api
+pytest -s -v
+```
+
+**Test features:**
+- Covers all authentication endpoints (register, login, refresh, logout, get current user)
+- Covers all AI endpoints (conversations, messages, document upload, document listing, document deletion)
+- Uses mongomock for fast, isolated, and dependency-free testing
+- Detects regressions and integration bugs automatically
+
+**Test files:**
+- `api/tests/test_auth.py`: Authentication endpoints
+- `api/tests/test_ai.py`: AI, conversation, and document endpoints
+
+**Requirements:**
+- Python 3.12+
+- pytest
+- pytest-asyncio
+- mongomock
+
+You can install test dependencies with:
+
+```bash
+pip install -r requirements.txt
+pip install pytest pytest-asyncio mongomock
+```
+
+---
 ## Quick Start
 
 ### 1. Install Dependencies
