@@ -8,6 +8,7 @@ config = {
     "port": os.getenv("PORT"),
     "mongodb": {
         "uri": os.getenv("MONGODB_URI"),
+        "test_uri": os.getenv("MONGODB_URI_TEST")
     },
     "jwt": {
         "secret": os.getenv("JWT_SECRET"),

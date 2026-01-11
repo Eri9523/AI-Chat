@@ -4,7 +4,7 @@ from typing import Optional, List
 
 from application.use_cases.ai.create_conversation import CreateConversation
 from application.use_cases.ai.send_message import SendMessage
-from application.use_cases.ai.upload_document import UploadDocument
+from application.use_cases.ai.upload_document import UploadDocument, UploadDocumentDto
 
 from infrastructure.database.repositories.mongo_conversation_repository import MongoConversationRepository
 from infrastructure.database.repositories.mongo_message_repository import MongoMessageRepository
@@ -221,21 +221,44 @@ class ai_controller:
         
         use_case = UploadDocument(
             document_repository=self.document_repository,
-            vector_service=self.vector_service
+            vector_service=self.vector_service,
+            ai_service=self.ai_service
         )
         
-        document = await use_case.execute(
+        # Read file content
+        content = await file.read()
+        file_size = len(content)
+        
+        # Determine document type
+        content_type = file.content_type
+        if content_type == "application/pdf":
+            from domain.entities.document import DocumentType
+            doc_type = DocumentType.PDF
+        elif content_type == "text/markdown":
+            from domain.entities.document import DocumentType
+            doc_type = DocumentType.MARKDOWN
+        else:
+            from domain.entities.document import DocumentType
+            doc_type = DocumentType.TEXT
+        
+        dto = UploadDocumentDto(
             user_id=user_id,
-            file=file
+            filename=file.filename,
+            content=content.decode('utf-8', errors='ignore'),
+            document_type=doc_type,
+            file_size=file_size,
+            metadata={}
         )
+        
+        document = await use_case.execute(dto)
         
         return DocumentResponse(
-            id=document.id,
-            user_id=document.user_id,
-            filename=document.filename,
-            file_type=document.file_type,
-            file_size=document.file_size,
-            created_at=document.created_at.isoformat()
+            id=document["id"],
+            user_id=user_id,
+            filename=document["filename"],
+            file_type=document["status"],
+            file_size=file_size,
+            created_at=document["created_at"]
         )
 
     async def get_documents(self, user_id: str) -> List[DocumentResponse]:
@@ -246,7 +269,7 @@ class ai_controller:
                 id=doc.id,
                 user_id=doc.user_id,
                 filename=doc.filename,
-                file_type=doc.file_type,
+                file_type=doc.document_type.value,
                 file_size=doc.file_size,
                 created_at=doc.created_at.isoformat()
             )
