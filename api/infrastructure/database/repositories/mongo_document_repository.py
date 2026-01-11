@@ -10,10 +10,14 @@ class MongoDocumentRepository(IDocumentRepository):
         document_model = DocumentModel(
             user_id=document.user_id,
             filename=document.filename,
-            file_type=document.file_type,
+            content=document.content,
+            document_type=document.document_type.value,
+            status=document.status.value,
             file_size=document.file_size,
-            vector_ids=document.vector_ids,
-            created_at=document.created_at
+            vector_ids=document.vector_ids or [],
+            metadata=document.metadata or {},
+            created_at=document.created_at,
+            updated_at=document.updated_at
         )
         document_model.save()
         document.id = str(document_model.id)
@@ -44,12 +48,18 @@ class MongoDocumentRepository(IDocumentRepository):
         return result > 0
 
     def _to_entity(self, model: DocumentModel) -> DocumentEntity:
+        from domain.entities.document import DocumentType, ProcessingStatus
         return DocumentEntity(
             id=str(model.id),
             user_id=str(model.user_id),
             filename=model.filename,
-            file_type=model.file_type,
+            content=model.content,
+            document_type=DocumentType(model.document_type),
+            status=ProcessingStatus(model.status),
             file_size=model.file_size,
             vector_ids=model.vector_ids,
-            created_at=model.created_at
+            metadata=model.metadata,
+            error_message=model.error_message,
+            created_at=model.created_at,
+            updated_at=model.updated_at
         )
